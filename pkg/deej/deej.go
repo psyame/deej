@@ -9,7 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/omriharel/deej/pkg/deej/util"
+	"github.com/psyame/deej/pkg/deej/util"
 )
 
 const (
@@ -32,7 +32,7 @@ type Deej struct {
 }
 
 // NewDeej creates a Deej instance
-func NewDeej(logger *zap.SugaredLogger, verbose bool) (*Deej, error) {
+func NewDeej(logger *zap.SugaredLogger, verbose bool, userConfigPath string) (*Deej, error) {
 	logger = logger.Named("deej")
 
 	notifier, err := NewToastNotifier(logger)
@@ -41,7 +41,7 @@ func NewDeej(logger *zap.SugaredLogger, verbose bool) (*Deej, error) {
 		return nil, fmt.Errorf("create new ToastNotifier: %w", err)
 	}
 
-	config, err := NewConfig(logger, notifier)
+	config, err := NewConfig(logger, notifier, userConfigPath)
 	if err != nil {
 		logger.Errorw("Failed to create Config", "error", err)
 		return nil, fmt.Errorf("create new Config: %w", err)

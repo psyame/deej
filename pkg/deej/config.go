@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/omriharel/deej/pkg/deej/util"
+	"github.com/psyame/deej/pkg/deej/util"
 )
 
 // CanonicalConfig provides application-wide access to configuration fields,
@@ -38,13 +38,11 @@ type CanonicalConfig struct {
 }
 
 const (
-	userConfigFilepath     = "config.yaml"
+	userConfigFilepath     = ""
 	internalConfigFilepath = "preferences.yaml"
 
 	userConfigName     = "config"
 	internalConfigName = "preferences"
-
-	userConfigPath = "."
 
 	configType = "yaml"
 
@@ -69,7 +67,7 @@ var defaultSliderMapping = func() *sliderMap {
 }()
 
 // NewConfig creates a config instance for the deej object and sets up viper instances for deej's config files
-func NewConfig(logger *zap.SugaredLogger, notifier Notifier) (*CanonicalConfig, error) {
+func NewConfig(logger *zap.SugaredLogger, notifier Notifier, userConfigPath string) (*CanonicalConfig, error) {
 	logger = logger.Named("config")
 
 	cc := &CanonicalConfig{
@@ -97,6 +95,8 @@ func NewConfig(logger *zap.SugaredLogger, notifier Notifier) (*CanonicalConfig, 
 
 	cc.userConfig = userConfig
 	cc.internalConfig = internalConfig
+
+	userConfigFilepath = userConfigPath
 
 	logger.Debug("Created config instance")
 
