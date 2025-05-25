@@ -2,6 +2,7 @@ package deej
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"strings"
 	"time"
@@ -38,7 +39,6 @@ type CanonicalConfig struct {
 }
 
 const (
-	userConfigFilepath     = ""
 	internalConfigFilepath = "preferences.yaml"
 
 	userConfigName     = "config"
@@ -55,6 +55,8 @@ const (
 	defaultCOMPort  = "COM4"
 	defaultBaudRate = 9600
 )
+// defined as non-constant as it's changed later once we know the path from the runtime variable
+var userConfigFilepath string
 
 // has to be defined as a non-constant because we're using path.Join
 var internalConfigPath = path.Join(".", logDirectory)
@@ -69,6 +71,23 @@ var defaultSliderMapping = func() *sliderMap {
 // NewConfig creates a config instance for the deej object and sets up viper instances for deej's config files
 func NewConfig(logger *zap.SugaredLogger, notifier Notifier, userConfigPath string) (*CanonicalConfig, error) {
 	logger = logger.Named("config")
+
+	// make sure that the userConfigPath exists and is a directory
+	configPathStat, configPathErr := os.Stat(userConfigPath)
+	if configPathErr != nil {
+		logger.Warnw("Config path provided does not exist!", "path", userConfigPath)
+		notifier.Notify("Invalid config path!",
+			fmt.Sprintf("%s does not exist", userConfigPath))
+
+		return nil, fmt.Errorf("config path does not exist: %s", userConfigPath)
+	}
+	if !configPathStat.IsDir() {
+		logger.Warnw("Config path provided is not a directory!", "path", userConfigPath)
+		notifier.Notify("Invalid config path!",
+			fmt.Sprintf("%s is not a directory", userConfigPath))
+
+		return nil, fmt.Errorf("config path is not a directory: %s", userConfigPath)
+	}
 
 	cc := &CanonicalConfig{
 		logger:             logger,
@@ -96,7 +115,7 @@ func NewConfig(logger *zap.SugaredLogger, notifier Notifier, userConfigPath stri
 	cc.userConfig = userConfig
 	cc.internalConfig = internalConfig
 
-	userConfigFilepath = userConfigPath
+	userConfigFilepath = path.Join(userConfigPath, "config.yaml")
 
 	logger.Debug("Created config instance")
 

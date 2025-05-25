@@ -23,9 +23,12 @@ var (
 func init() {
 	flag.BoolVar(&verbose, "verbose", false, "show verbose logs (useful for debugging serial)")
 	flag.BoolVar(&verbose, "v", false, "shorthand for --verbose")
+
 	flag.BoolVar(&enableLogFile, "enableLogging", false, "enable output of a log file")
 	flag.StringVar(&logPath, "logPath", ".", "the path to the folder in which the log file will be created, will create the directory structure if it doesn't exist. defaults to the current directory when the binary is ran")
-	flag.StringVar(&userConfigPath, "config", "./config.yaml", "the path to the directory containing config.yaml, defaults to looking in the current directory when the binary is ran")
+
+	flag.StringVar(&userConfigPath, "config", ".", "the path to the directory containing config.yaml, defaults to looking in the current directory when the binary is ran")
+	flag.StringVar(&userConfigPath, "c", ".", "shorthand for --config")
 	flag.Parse()
 }
 
@@ -46,7 +49,7 @@ func main() {
 		"buildType", buildType)
 
 	// provide a fair warning if the user's running in verbose mode
-	if verbose; enableLogFile {
+	if verbose {
 		named.Debug("Verbose flag provided, all log messages will be shown")
 	}
 
