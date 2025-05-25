@@ -2,7 +2,7 @@
 
 deej is an **open-source hardware volume mixer** for Windows and Linux PCs. It lets you use real-life sliders (like a DJ!) to **seamlessly control the volumes of different apps** (such as your music player, the game you're playing and your voice chat session) without having to stop what you're doing.
 
-This fork aims to provide various changes within the desktop Go client to allow for more granular configuration. Changes include logs being off by default with runtime options for location and status, as well as the ability to provide a path to the config file. 
+This Linux-focused fork aims to provide various changes within the desktop client to allow for more granular configuration. Present changes include output to a log file being disabled by default with console logging enabled, the default log and config directory on Linux being set to $XDG_CONFIG_HOME/deej, as well as flags being provided to manually specify a directory path for both the log and config file. 
 
 **Join the [deej Discord server](https://discord.gg/nf88NJu) if you need help or have any questions!**
 

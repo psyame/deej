@@ -3,8 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/psyame/deej/pkg/deej"
+	"github.com/psyame/deej/pkg/deej/util"
 )
 
 var (
@@ -21,14 +24,25 @@ var (
 )
 
 func init() {
+	defaultLogPath := "./logs"
+	defaultConfigPath := "."
+
+	if util.Linux() {
+		xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
+		if xdgConfigHome != "" {
+		  defaultLogPath = filepath.Join(xdgConfigHome, "deej", "logs") 
+		  defaultConfigPath = filepath.Join(xdgConfigHome, "deej")
+	  }
+	}
+
 	flag.BoolVar(&verbose, "verbose", false, "show verbose logs (useful for debugging serial) (default: false)")
 	flag.BoolVar(&verbose, "v", false, "shorthand for --verbose (default: false)")
 
 	flag.BoolVar(&enableLogFile, "enableLogFile", false, "enable output of a log file (default: false)")
-	flag.StringVar(&logPath, "logPath", "./logs", "the path to the folder in which the log file will be created, will create the directory structure if it doesn't exist")
+	flag.StringVar(&logPath, "logPath", defaultLogPath, "req. enableLogFile, the path to the folder in which the log file will be created, will create the directory structure if it doesn't exist")
 
-	flag.StringVar(&userConfigPath, "config", ".", "the path to the directory containing config.yaml")
-	flag.StringVar(&userConfigPath, "c", ".", "shorthand for --config")
+	flag.StringVar(&userConfigPath, "config", defaultConfigPath, "the path to the directory containing config.yaml")
+	flag.StringVar(&userConfigPath, "c", defaultConfigPath, "shorthand for --config")
 	flag.Parse()
 }
 
