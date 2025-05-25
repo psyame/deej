@@ -21,21 +21,21 @@ var (
 )
 
 func init() {
-	flag.BoolVar(&verbose, "verbose", false, "show verbose logs (useful for debugging serial)")
-	flag.BoolVar(&verbose, "v", false, "shorthand for --verbose")
+	flag.BoolVar(&verbose, "verbose", false, "show verbose logs (useful for debugging serial) (default: false)")
+	flag.BoolVar(&verbose, "v", false, "shorthand for --verbose (default: false)")
 
-	flag.BoolVar(&enableLogFile, "enableLogging", false, "enable output of a log file")
-	flag.StringVar(&logPath, "logPath", ".", "the path to the folder in which the log file will be created, will create the directory structure if it doesn't exist. defaults to the current directory when the binary is ran")
+	flag.BoolVar(&enableLogFile, "enableLogFile", false, "enable output of a log file (default: false)")
+	flag.StringVar(&logPath, "logPath", "./logs", "the path to the folder in which the log file will be created, will create the directory structure if it doesn't exist")
 
-	flag.StringVar(&userConfigPath, "config", ".", "the path to the directory containing config.yaml, defaults to looking in the current directory when the binary is ran")
+	flag.StringVar(&userConfigPath, "config", ".", "the path to the directory containing config.yaml")
 	flag.StringVar(&userConfigPath, "c", ".", "shorthand for --config")
 	flag.Parse()
 }
 
 func main() {
 
-	// first we need a logger
-	logger, err := deej.NewLogger(buildType)
+	// first we need a logger (optionally)
+	logger, err := deej.NewLogger(buildType, enableLogFile, logPath)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create logger: %v", err))
 	}

@@ -42,24 +42,28 @@ func (d *Deej) recoverFromPanic() {
 	now := time.Now()
 
 	// that would suck
-	if err := util.EnsureDirExists(logDirectory); err != nil {
-		panic(fmt.Errorf("ensure crashlog dir exists: %w", err))
+	if logFileEnabled { 
+	  if err := util.EnsureDirExists(logDirectory); err != nil {
+		  panic(fmt.Errorf("ensure crashlog dir exists: %w", err))
+	  }
+
+	  crashlogBytes := bytes.NewBufferString(fmt.Sprintf(crashMessage, now.Format(crashlogTimestampFormat), r, debug.Stack()))
+	  crashlogPath := filepath.Join(logDirectory, fmt.Sprintf(crashlogFilename, now.Format(crashlogTimestampFormat)))
+
+	  // that would REALLY suck
+	  if err := ioutil.WriteFile(crashlogPath, crashlogBytes.Bytes(), os.ModePerm); err != nil {
+		  panic(fmt.Errorf("can't even write the crashlog file contents: %w", err))
+	  }
+
+	  d.logger.Errorw("Encountered and logged panic, crashing",
+		  "crashlogPath", crashlogPath,
+		  "error", r)
+
+	  d.notifier.Notify("Unexpected crash occurred...",
+		  fmt.Sprintf("More details in %s", crashlogPath))
+	} else {
+	  d.notifier.Notify("Unexpected crash occurred...", ":(")
 	}
-
-	crashlogBytes := bytes.NewBufferString(fmt.Sprintf(crashMessage, now.Format(crashlogTimestampFormat), r, debug.Stack()))
-	crashlogPath := filepath.Join(logDirectory, fmt.Sprintf(crashlogFilename, now.Format(crashlogTimestampFormat)))
-
-	// that would REALLY suck
-	if err := ioutil.WriteFile(crashlogPath, crashlogBytes.Bytes(), os.ModePerm); err != nil {
-		panic(fmt.Errorf("can't even write the crashlog file contents: %w", err))
-	}
-
-	d.logger.Errorw("Encountered and logged panic, crashing",
-		"crashlogPath", crashlogPath,
-		"error", r)
-
-	d.notifier.Notify("Unexpected crash occurred...",
-		fmt.Sprintf("More details in %s", crashlogPath))
 
 	// bye :(
 	d.signalStop()
