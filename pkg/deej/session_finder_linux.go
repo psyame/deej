@@ -3,6 +3,7 @@ package deej
 import (
 	"fmt"
 	"net"
+	"strings"
 
 	"github.com/jfreymuth/pulse/proto"
 	"go.uber.org/zap"
@@ -129,17 +130,27 @@ func (sf *paSessionFinder) enumerateAndAddSessions(sessions *[]Session) error {
 	}
 
 	for _, info := range reply {
-		name, ok := info.Properties["application.process.binary"]
+		var (
+			name string
+			ok   bool
+		)
+
+		for _, key := range []string{"application.process.binary", "node.name", "device.description"} {
+			if val, found := info.Properties[key]; found {
+				name = strings.TrimRight(string(val), "\x00")
+				ok = true
+				break
+			}
+		}
 
 		if !ok {
 			sf.logger.Warnw("Failed to get sink input's process name",
 				"sinkInputIndex", info.SinkInputIndex)
-
 			continue
 		}
 
 		// create the deej session object
-		newSession := newPASession(sf.sessionLogger, sf.client, info.SinkInputIndex, info.Channels, name.String())
+		newSession := newPASession(sf.sessionLogger, sf.client, info.SinkInputIndex, info.Channels, name)
 
 		// add it to our slice
 		*sessions = append(*sessions, newSession)
