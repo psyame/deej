@@ -9,7 +9,7 @@ import (
 	"unsafe"
 
 	ole "github.com/go-ole/go-ole"
-	wca "github.com/moutend/go-wca"
+	"github.com/moutend/go-wca/pkg/wca"
 	"go.uber.org/zap"
 )
 
